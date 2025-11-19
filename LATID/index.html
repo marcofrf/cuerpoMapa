@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Violencia sexual en contextos bélicos – índice interactivo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Índice interactivo</h1>
+    <nav class="mode-toggle" aria-label="Cambiar conjunto de datos">
+      <button id="modePromedios" class="active" aria-pressed="true">2010–2015</button>
+      <button id="mode2020" aria-pressed="false">Año 2020</button>
+    </nav>
+  </header>
+
+  <main class="stage" role="main">
+    <!-- Imagen central con latido -->
+    <button class="pulse" id="pulseButton" aria-label="Abrir detalle explicativo">
+      <!-- Reemplaza 'latido.png' por tu PNG -->
+      <img src="latido.png" alt="Ícono que late indicando alerta" />
+      <span class="sr-only">Pulsa para más información</span>
+    </button>
+
+    <!-- Panel informativo: pequeño, abajo-derecha, con botón de ampliar -->
+    <section id="infoCard" class="info compact" aria-live="polite" aria-atomic="true">
+      <button id="btnExpand" class="corner" aria-label="Ampliar panel" aria-expanded="false" title="Ampliar">⤢</button>
+
+      <h2 id="infoTitle">Violencia sexual (2010–2015)</h2>
+
+      <p id="infoText">
+        En Colombia se reportaron <strong>875.437</strong> víctimas directas (2010–2015).
+      </p>
+
+      <!-- Texto de contexto que pediste -->
+      <p id="infoContext" class="context">
+        Este índice enfatiza la magnitud de la violencia sexual contra mujeres en Colombia
+        usando datos reportados y promedios estimados para periodos específicos. Los latidos
+        refuerzan visualmente la recurrencia del fenómeno; los contadores muestran tasas
+        aproximadas (hora/día/mes) según el modo activo.
+      </p>
+
+      <!-- Contadores animados: hora / día / mes -->
+      <div class="stats">
+        <div class="stat">
+          <span class="label">por hora</span>
+          <span class="value" id="countHora">16</span>
+        </div>
+        <div class="stat">
+          <span class="label">por día</span>
+          <span class="value" id="countDia">400</span>
+        </div>
+        <div class="stat">
+          <span class="label">por mes</span>
+          <span class="value" id="countMes">12158</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnDetalle" class="ghost">Ver detalle</button>
+        <button id="btnFlash" class="primary">Acción informativa</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Tarjeta modal con más contexto -->
+  <dialog id="modalDetalle" aria-labelledby="modalTitle">
+    <article class="modal-card">
+      <header>
+        <h3 id="modalTitle">Contexto y metodología</h3>
+        <button class="icon" id="modalClose" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="modal-content">
+        <p>
+          Este índice enfatiza la magnitud de la violencia sexual contra mujeres en Colombia
+          usando datos reportados y promedios estimados para periodos específicos. Los latidos
+          refuerzan visualmente la recurrencia del fenómeno; los contadores muestran tasas
+          aproximadas (hora/día/mes) según el modo activo.
+        </p>
+        <ul>
+          <li><strong>2010–2015:</strong> 875.437 víctimas directas reportadas; en promedio 145.906/año, 12.158/mes, 400/día, 16/hora.</li>
+          <li><strong>2020:</strong> 4.481.788 mujeres reportadas como víctimas del conflicto armado; 28.377 víctimas de violencia sexual en ese año. Se estima que solo una cuarta parte fue reparada.</li>
+        </ul>
+        <p class="note">
+          Nota: Estos valores son de informes agregados; no representan un conteo “en tiempo real”.
+        </p>
+      </div>
+      <footer>
+        <button class="primary" id="modalOk">Entendido</button>
+      </footer>
+    </article>
+  </dialog>
+
+  <footer class="foot">
+    <small>
+      Transparencia: el efecto de latido es una metáfora visual para subrayar continuidad y urgencia.
+      Los contadores representan promedios derivados de los datos citados por periodo.
+    </small>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
