@@ -54,8 +54,8 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./cuerpo_mapa/out/
-          server-dir: ./
-          dangerous-clean-slate: false
+          server-dir: /domains/cuerpo-mapa.com/public_html/
+          dangerous-clean-slate: true
           exclude: |
             **/.git*
             **/.git*/**
