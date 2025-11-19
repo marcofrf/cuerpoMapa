@@ -22,8 +22,15 @@ export default function HomePage() {
   } = useZoom();
 
   const [showWelcome, setShowWelcome] = useState(true);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+
+  // We now keep TWO layers:
+  // JPG = welcome background
+  // SVG = final map background
+  const [svgVisible, setSvgVisible] = useState(false); // SVG + dots fade in
+  const [jpgVisible, setJpgVisible] = useState(true);  // JPG fades out with welcome
 
   const exportRef = useRef<HTMLDivElement | null>(null);
 
@@ -34,22 +41,61 @@ export default function HomePage() {
     transition: { duration: 0.4 },
   };
 
+  // ----------------------------------------
+  // WELCOME BUTTON BEHAVIOR
+  // ----------------------------------------
+  const handleEnter = () => {
+    // Step 1 → fade in SVG below everything
+    setSvgVisible(true);
+
+    // Step 2 → fade out welcome + JPG together
+    setTimeout(() => {
+      setJpgVisible(false);
+      setShowWelcome(false);
+    }, 700); // welcome fades out slightly after SVG begins fading in
+  };
+
   return (
     <div
       ref={exportRef}
       id="captureArea"
       className="relative w-full h-screen overflow-hidden bg-black"
     >
+
+      {/* BACKGROUND LAYER 1 — JPG (FADE OUT WITH WELCOME) */}
+      <AnimatePresence>
+        {jpgVisible && (
+          <motion.img
+            key="bg-jpg"
+            src="/portada/fondo_solo.jpg"
+            className="absolute inset-0 w-full h-full object-cover"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: jpgVisible ? 1 : 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* BACKGROUND LAYER 2 — SVG (FADE IN UNDERNEATH THE WELCOME) */}
+      <motion.img
+        key="bg-svg"
+        src="/portada/fondo.svg"
+        className="absolute inset-0 w-full h-full object-cover"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: svgVisible ? 1 : 0 }}
+        transition={{ duration: 1.2, ease: "easeInOut" }}
+      />
+
       {/* WELCOME SCREEN */}
       <AnimatePresence>
         {showWelcome && (
           <motion.div
-            className="relative w-full h-full inset-0 z-[999] flex 
-            items-center justify-center bg-black/80 text-white"
-            initial={{ opacity: 0 }}
+            className="absolute inset-0 z-[999] flex items-center justify-center bg-black/70 text-white"
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1.1 }}
           >
             <div className="flex flex-row items-center gap-[20%]">
               <div className="text-left">
@@ -65,10 +111,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <button
-                onClick={() => setShowWelcome(false)}
-                className="transition hover:opacity-80"
-              >
+              <button onClick={handleEnter} className="transition hover:opacity-80">
                 <img
                   src="/portada/button.png"
                   alt="Enter"
@@ -79,6 +122,19 @@ export default function HomePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* LOGOS (only after welcome is fully gone) */}
+      {!showWelcome && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="fixed top-[2vh] left-[2vw] z-[500] flex gap-4"
+        >
+          <img src="/portada/logo1.png" className="w-[10vh] h-auto" />
+          <img src="/portada/logo2.png" className="w-[10vh] h-auto" />
+        </motion.div>
+      )}
 
       {/* MENU & ABOUT BUTTONS */}
       {!showWelcome && (
@@ -107,7 +163,7 @@ export default function HomePage() {
         </>
       )}
 
-      {/* MENU OVERLAY */}
+      {/* MENU PANEL */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -121,7 +177,7 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* ABOUT OVERLAY */}
+      {/* ABOUT PANEL */}
       <AnimatePresence>
         {aboutOpen && (
           <motion.div
@@ -135,32 +191,17 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* BACKGROUND IMAGE */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden">
-        <motion.img
-          id="bodyImage"
-          src="/portada/fondo.svg"
-          alt="Interactive Body"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          animate={
-            zoomed
-              ? {
-                  scale: zoomTarget.scale,
-                  x: `calc(50% - ${zoomTarget.x})`,
-                  y: `calc(50% - ${zoomTarget.y})`,
-                }
-              : { scale: 1, x: 0, y: 0 }
-          }
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          onAnimationComplete={handleAnimationComplete}
-        />
-
-        {/* DOTS - NOW WITH PERFECT MAPPING */}
-        <AnimatePresence>
-          {showDots &&
-            interactionPoints.map((p) => (
+      {/* DOTS (fade in with SVG) */}
+      <AnimatePresence>
+        {svgVisible &&
+          interactionPoints.map((p) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.2 }}
+            >
               <DotWithCoverMapping
-                key={p.id}
                 xPercent={parseFloat(p.x)}
                 yPercent={parseFloat(p.y)}
                 onClick={() =>
@@ -177,9 +218,9 @@ export default function HomePage() {
                   )
                 }
               />
-            ))}
-        </AnimatePresence>
-      </div>
+            </motion.div>
+          ))}
+      </AnimatePresence>
 
       {/* SKETCH PANEL */}
       <AnimatePresence>
@@ -221,7 +262,7 @@ export default function HomePage() {
 }
 
 /* ----------------------------------------------------- */
-/* DOT COMPONENT WITH PERFECT OBJECT-COVER COMPENSATION  */
+/* DOT COMPONENT WITH EXACT OBJECT-COVER COORDINATES     */
 /* ----------------------------------------------------- */
 
 function DotWithCoverMapping({
@@ -236,7 +277,7 @@ function DotWithCoverMapping({
   const [pos, setPos] = useState({ left: 0, top: 0 });
 
   const updatePosition = () => {
-    const img = document.getElementById("bodyImage") as HTMLImageElement;
+    const img = document.querySelector('img[src="/portada/fondo.svg"]') as HTMLImageElement;
     if (!img) return;
 
     const containerW = img.clientWidth;
