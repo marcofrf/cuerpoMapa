@@ -56,7 +56,6 @@ jobs:
           local-dir: ./cuerpo_mapa/out/
           server-dir: ./
           dangerous-clean-slate: true
-          dry-run: true
           exclude: |
             **/.git*
             **/.git*/**
