@@ -2,14 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { useRef, useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
 
 const Sketch = dynamic(() => import("react-p5"), { ssr: false });
-
-// --- supabase setup ---
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function handLeftSketch() {
   const postcardImg = useRef(null);
@@ -261,15 +255,26 @@ export default function handLeftSketch() {
     setSaving(true);
     setMessage("");
 
-    const { error } = await supabase.from("postcards").insert([
-      { content: fullText, created_at: new Date().toISOString() },
-    ]);
+    try {
+      const response = await fetch("/api/save-postcard.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: fullText }),
+      });
 
-    if (error) {
+      const result = await response.json();
+
+      if (result.success) {
+        setMessage("✅ Message saved!");
+      } else {
+        console.error(result.message);
+        setMessage("❌ Error saving message");
+      }
+    } catch (error) {
       console.error(error);
       setMessage("❌ Error saving message");
-    } else {
-      setMessage("✅ Message saved!");
     }
 
     setSaving(false);

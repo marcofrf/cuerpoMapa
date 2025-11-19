@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
 
 export default function MediaMenuPage() {
   const [data, setData] = useState<any[]>([]);
@@ -18,12 +17,20 @@ export default function MediaMenuPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("csv_test")
-        .select("id, title, description, type");
+      try {
+        const response = await fetch("/api/references.php");
+        const result = await response.json();
 
-      if (error) console.error("Supabase error:", error);
-      else setData(data || []);
+        if (result.success && result.data) {
+          setData(result.data);
+        } else {
+          console.error("API error:", result.message || "Unknown error");
+          setData([]);
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+        setData([]);
+      }
       setLoading(false);
     };
 

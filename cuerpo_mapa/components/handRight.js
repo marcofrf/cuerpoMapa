@@ -2,14 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { useRef, useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
 
 const Sketch = dynamic(() => import("react-p5"), { ssr: false });
-
-// Supabase setup
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function handRightSketch() {
   const postcardImg = useRef(null);
@@ -45,13 +39,11 @@ export default function handRightSketch() {
     setMessage("✉️ Loading postcard...");
 
     try {
-      const { data, error } = await supabase.from("postcards").select("content");
+      const response = await fetch("/api/postcards.php");
+      const result = await response.json();
 
-      if (error) throw error;
-
-      if (data.length > 0) {
-        const random = data[Math.floor(Math.random() * data.length)];
-        setContent(random.content || "");
+      if (result.success && result.data) {
+        setContent(result.data.content || "");
         setMessage("");
       } else {
         setMessage("📭 No postcards saved yet.");
